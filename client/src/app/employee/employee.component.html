@@ -1,0 +1,271 @@
+<div class="container">
+  <app-header></app-header>
+  <br>
+  <h1>Employee</h1>
+  <br>
+  <form class="form-inline" (ngSubmit)="onSearchEmp(formSearch);" #formSearch="ngForm">
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="number" class="form-control" name="id_nhanvien" ngModel placeholder="Search By ID">
+    </div>
+
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="text" class="form-control" name="name" ngModel placeholder="Search By Name">
+    </div>
+
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="number" class="form-control" name="age" ngModel placeholder="Search By Age">
+    </div>
+
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="text" class="form-control" name="tinh" ngModel placeholder="Search By Tinh">
+    </div>
+
+    <button type="submit" class="btn btn-primary mb-2">Search</button>
+  </form>
+  <p class="error">{{ searchNotification }}</p>
+  <br>
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Age</th>
+        <th scope="col">Tinh</th>
+        <th scope="col">Huyen</th>
+        <th scope="col">Xa</th>
+        <th scope="col" *ngIf="EditEmpPermission"></th>
+        <th scope="col" *ngIf="DeleteEmpPermission"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of nhanvien">
+        <th scope="row">{{ item.id_nhanvien }}</th>
+        <td>{{ item.name }}</td>
+        <td>{{ item.age }}</td>
+        <td>{{ item.tinh }}</td>
+        <td>{{ item.huyen }}</td>
+        <td>{{ item.xa }}</td>
+        <td *ngIf="EditEmpPermission"><button type="button" class="btn btn-success" data-toggle="modal" data-target="#editEmployeeModal"
+            (click)="editEmp(item.id_nhanvien)">Edit</button></td>
+        <td *ngIf="DeleteEmpPermission"><button type="button" class="btn btn-danger" (click)="deleteEmp(item.id_nhanvien)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <ul class="pagination" *ngIf="showPage">
+    <li class="page-item" *ngFor="let item of totalpage">
+      <a class="page-link" routerLink="/getEmp/{{item}}">{{ item }}</a>
+    </li>
+  </ul>
+  <div class="alert alert-success" role="alert" *ngIf="showNotification">
+    {{ notification }}
+  </div>
+  <!-- Button to Open the Modal -->
+  <button type="button" *ngIf="ButtonAddEmp" class="btn btn-primary" data-toggle="modal" data-target="#employeeModal">
+    Add Employee
+  </button>
+  <a *ngIf="BackToManagerEmp" routerLink="/getEmp/">Back to Manager Employee</a>
+
+  <!-- The Add Modal -->
+  <div class="modal fade" id="employeeModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Employee</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form (ngSubmit)="onAddEmp(formNhanvien);" #formNhanvien="ngForm">
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" name="name" ngModel (keyup)="nameError($event.target.value)">
+                <p class="error">{{ name_error }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Age</label>
+              <div class="col-sm-10">
+                <input type="number" class="form-control" name="age" ngModel (keyup)="ageError($event.target.value)">
+                <p class="error">{{ age_error }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" [(ngModel)]="name_tinh" name="tinh" ngModel required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" name="huyen" [(ngModel)]="name_huyen" ngModel required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" name="xa" [(ngModel)]="name_xa" ngModel required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Hometown</label>
+              <div class="col-sm-10">
+                <a class="btn btn-primary" data-toggle="modal" data-target="#homeModal">Select Hometown</a>
+                <p>{{ name_tinh }} {{ name_huyen }} {{ name_xa }}</p>
+                <p class="error">{{ tinh_error }}</p>
+                <p class="error">{{ huyen_error }}</p>
+                <p class="error">{{ xa_error }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="submit" class="btn btn-success" [disabled]="formNhanvien.invalid">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button id="closeModal" type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- The Edit Modal -->
+  <div class="modal fade" id="editEmployeeModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Employee</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form (ngSubmit)="onEditEmp(formEditNhanvien,empid);" #formEditNhanvien="ngForm">
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" name="id_nhanvien" [(ngModel)]="empid">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" name="name" [(ngModel)]="empname"
+                  (keyup)="nameError($event.target.value)">
+                <p class="error">{{ name_error }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Age</label>
+              <div class="col-sm-10">
+                <input type="number" class="form-control" name="age" [(ngModel)]="empage"
+                  (keyup)="ageError($event.target.value)">
+                <p class="error">{{ age_error }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" name="tinh" [(ngModel)]="name_tinh" required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" name="huyen" [(ngModel)]="name_huyen" required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="hidden" class="form-control" name="xa" [(ngModel)]="name_xa" required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Hometown</label>
+              <div class="col-sm-10">
+                <a class="btn btn-primary" data-toggle="modal" data-target="#homeModal">Select Hometown</a>
+                <p>{{ name_tinh }} {{ name_huyen }} {{ name_xa }}</p>
+                <p class="error">{{ tinh_error }}</p>
+                <p class="error">{{ huyen_error }}</p>
+                <p class="error">{{ xa_error }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="submit" class="btn btn-success" [disabled]="formEditNhanvien.invalid">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button id="closeModal" type="button" class="btn btn-danger" data-dismiss="modal"
+            id="closeEditModal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="homeModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Hometown</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Tinh</label>
+              <div class="col-sm-10">
+                <select class="form-control" name="tinh" ngModel (change)="onTinhChange($event.target.value)">
+                  <option *ngFor="let item of array_tinh" [value]="item.id_tinh">{{ item.name }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Huyen</label>
+              <div class="col-sm-10">
+                <select class="form-control" name="huyen" ngModel (change)="onHuyenChange($event.target.value)">
+                  <option *ngFor="let item of array_huyen" [value]="item.id_huyen">{{ item.name }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Xa</label>
+              <div class="col-sm-10">
+                <select class="form-control" name="xa" ngModel (change)="onXaChange($event.target.value)">
+                  <option *ngFor="let item of array_xa" [value]="item.id_xa">{{ item.name }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button (click)="submitHome()" type="submit" class="btn btn-success"
+                  data-dismiss="modal">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <br>
+
+<app-footer></app-footer>
+</div>

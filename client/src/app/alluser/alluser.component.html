@@ -1,0 +1,95 @@
+<div class="container">
+  <app-header></app-header>
+  <br>
+  <h1>User</h1>
+  <form class="form-inline" (ngSubmit)="onSearchUser(formSearch);" #formSearch="ngForm">
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="number" class="form-control" name="user_id" ngModel placeholder="Search By User ID">
+    </div>
+
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="text" class="form-control" name="username" ngModel placeholder="Search By Username">
+    </div>
+
+    <div class="input-group mb-2 mr-sm-2">
+      <input type="text" class="form-control" name="role" ngModel placeholder="Search By User Role">
+    </div>
+
+    <button type="submit" class="btn btn-primary mb-2">Search</button>
+  </form>
+  <p class="error">{{ searchNotification }}</p>
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Username</th>
+        <th scope="col">Role</th>
+        <th scope="col"></th>
+        <th scope="col">View</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of listUser">
+        <th scope="row">{{ item.user_id }}</th>
+        <td>{{ item.username }}</td>
+        <td>
+          <select class='form-control' id='{{ item.user_id }}' [value]='item.role'>
+            <option value='select'>select</option>
+            <option value='ADMIN'>ADMIN</option>
+            <option value='USER'>USER</option>
+          </select>
+        </td>
+        <td>
+          <button type="button" class="btn btn-success" (click)='updateUser(item.user_id)'>Update Role</button>
+        </td>
+        <td>
+          <!-- Button to Open the Modal -->
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#viewModal" (click)="onListView(item.user_id)">
+            View Access
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" *ngIf="BackToManagerUser" class="btn btn-primary" (click)="backToManagerUser()">
+      Back to Manager User
+  </button>
+  <!-- The Modal -->
+  <div class="modal fade" id="viewModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">View Access</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form (ngSubmit)="onEditListView(formView);" #formView="ngForm"> 
+              <div class="form-group row">
+                <div class="col-sm-10">
+                  <input type="hidden" ngModel class="form-control" name="user_id" [(ngModel)]="userid">
+                </div>
+              </div>
+            <div class="form-group form-check" *ngFor="let item of listSiteAccess">
+              <input class="form-check-input" type="checkbox" [checked]='item.status' id="{{ item.name }}">
+              <label class="form-check-label">
+                {{ item.name }}
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" id="closeListViewModal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <app-footer></app-footer>
+</div>
